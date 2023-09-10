@@ -10,7 +10,7 @@
      
 ##### How to Use:
   1. Place in the directory of the INI you want to adjust.
-  2.) Run the script and you will be prompted to choose how many underwater outfits you have.
+  2. Run the script and you will be prompted to choose how many underwater outfits you have.
   3. Next you will have to choose what $swapvar values to use for the outfits.
   4. You will then be able to set a toggle key to enable/disable the functionality.
   5. If you have more than one underwater outfit you will be asked to set a key for switching the outfits.
