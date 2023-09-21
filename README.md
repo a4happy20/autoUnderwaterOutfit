@@ -32,5 +32,5 @@
 ```
 # Constants for section names
 SWAPVAR_VARIABLE = $swapvar
-KEYTOGGLE_SECTION = $keytoggle.
+KEYSWAP_SECTION = KeySwap.
 ```
