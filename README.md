@@ -30,5 +30,7 @@
   2. If your ini file uses a different variable for "[KeyToggle]" or "$swapvar" you can open the script and change the values to work with your ini.
 
 ```
-SWAPVAR_VARIABLE = $swapvar / KEYTOGGLE_SECTION = $keytoggle.
+# Constants for section names
+SWAPVAR_VARIABLE = $swapvar
+KEYTOGGLE_SECTION = $keytoggle.
 ```
