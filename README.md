@@ -5,7 +5,7 @@
     
     
 #### Description:
-  Python script for anime game to add auto outfit changing when under or in water. It will follow this logic. When entering water we store current outfit($swapvar value) and set the underwater outfit($UnderwaterOutfitSelect value). When leaving the water we set it back to the stored outfit($swapvar value). You can choose a toggle to enable/disable the functionality. If you have more than one underwater outfit you can set a key to cycle through outfits.
+  Python script for anime game to add auto outfit changing when under or in water. It will follow this logic. When entering water we store current outfit($swapvar value) and set the underwater outfit($UnderwaterOutfitSelect value). When leaving the water we set it back to the stored outfit($swapvar value). You can choose a toggle to enable/disable the functionality.
      
 
 #### Update:
