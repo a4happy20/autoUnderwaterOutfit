@@ -423,9 +423,9 @@ def generate_underwater_outfit_lines(key_toggle, num_outfits, swapvar_values, ou
         "",
         ";autoUnderwaterOutfit",
         "[ShaderOverrideWaterCensor3]",
-        "hash = 2cb9fbd599d915ba",
+        "hash = 2ff98a686aae5e81",
         "allow_duplicate_hash = true",
-        "if ps-t0 == 45",
+        "if ps-t1 == 45",
         "    $submerged_start = 1",
         "endif",
         "",
@@ -500,146 +500,6 @@ def ensure_present_section_exists(ini_path, section_name, lines_to_add_present):
     except FileNotFoundError:
         print(f"INI file not found: {ini_path}")
 
-
-# Adding AGMG3ShaderFix lines to relevant sections
-def add_lines_to_ini_sections(ini_files, script_directory):
-    try:
-        for filename in ini_files:
-            ini_path = os.path.join(script_directory, filename)
-            TEXTURE_OVERRIDE_HEAD_SECTION, TEXTURE_OVERRIDE_BODY_SECTION, TEXTURE_OVERRIDE_DRESS_SECTION, TEXTURE_OVERRIDE_EXTRA_SECTION = check_ini_file(filename)
-            
-            # Lines to add to [Constants] section
-            lines_to_add_constants = [
-                ";AGMG3ShaderFix",
-                "global $CharacterIB",
-                ";0=none, 1=head, 2=body, 3=dress, 4=extra",
-                "",
-            ]
-
-            # Lines to add to [Present] section
-            lines_to_add_present = [
-                ";AGMG3ShaderFix",
-                "post $CharacterIB = 0",
-                "",
-            ]
-
-            if TEXTURE_OVERRIDE_HEAD_SECTION:
-            # Lines to add to [TextureOverride* *Head] section
-                lines_to_add_head = [
-                    ";AGMG3ShaderFix",
-                    "$CharacterIB = 1",
-                    "ResourceRefHeadDiffuse = reference ps-t1",
-                    "ResourceRefHeadLightMap = reference ps-t2",
-                    "",
-            ]
-
-            if TEXTURE_OVERRIDE_BODY_SECTION:
-            # Lines to add to [TextureOverride* *Body] section
-                lines_to_add_body = [
-                    ";AGMG3ShaderFix",
-                    "$CharacterIB = 2",
-                    "ResourceRefBodyDiffuse = reference ps-t1",
-                    "ResourceRefBodyLightMap = reference ps-t2",
-                    "",
-                ]
-
-            if TEXTURE_OVERRIDE_BODY_SECTION:
-            # Lines to add to [TextureOverride* *Dress] section
-                lines_to_add_dress = [
-                    ";AGMG3ShaderFix",
-                    "$CharacterIB = 3",
-                    "ResourceRefDressDiffuse = reference ps-t1",
-                    "ResourceRefDressLightMap = reference ps-t2",
-                    "",
-                ]
-
-            if TEXTURE_OVERRIDE_BODY_SECTION:
-            # Lines to add to [TextureOverride* *Extra] section
-                lines_to_add_extra = [
-                    ";AGMG3ShaderFix",
-                    "$CharacterIB = 4",
-                    "ResourceRefExtraDiffuse = reference ps-t1",
-                    "ResourceRefExtraLightMap = reference ps-t2",
-                    "",
-                ]
-
-            # Add lines to INI file under specific section headers
-            add_lines_to_ini_section(ini_path, CONSTANTS_SECTION, lines_to_add_constants)
-            add_lines_to_ini_section(ini_path, PRESENT_SECTION, lines_to_add_present)
-            add_lines_to_ini_section(ini_path, TEXTURE_OVERRIDE_HEAD_SECTION, lines_to_add_head)
-            add_lines_to_ini_section(ini_path, TEXTURE_OVERRIDE_BODY_SECTION, lines_to_add_body)
-            add_lines_to_ini_section(ini_path, TEXTURE_OVERRIDE_DRESS_SECTION, lines_to_add_dress)
-            add_lines_to_ini_section(ini_path, TEXTURE_OVERRIDE_EXTRA_SECTION, lines_to_add_extra)
-
-    except FileNotFoundError:
-        print(f"INI file not found: {ini_path}")
-
-# Adding AGMG3ShaderFix lines to the end of the ini
-def add_lines_to_end_of_ini(ini_path):
-    try:
-        with open(ini_path, "a") as ini_file:
-            # Add the lines you want to append to the end of the INI file
-            lines_to_add = [
-                "",
-                ";AGMG3ShaderFix",
-                "[ResourceRefHeadDiffuse]",
-                "[ResourceRefHeadLightMap]",
-                "[ResourceRefBodyDiffuse]",
-                "[ResourceRefBodyLightMap]",
-                "[ResourceRefDressDiffuse]",
-                "[ResourceRefDressLightMap]",
-                "[ResourceRefExtraDiffuse]",
-                "[ResourceRefExtraLightMap]",
-                "",
-                "[ShaderRegexCharReflection]",
-                "shader_model = ps_5_0",
-                "run = CommandListReflectionTexture",
-                "",
-                "[ShaderRegexCharReflection.pattern]",
-                "mul r\\d+\\.\\w+, r\\d+\\.\\w+,[^.]*\\.\\w+\\n",
-                "mad o\\d+\\.\\w+, r\\d+\\.\\w+, cb\\d+\\[\\d+\\]\\.\\w+, r\\d+\\.\\w+\\n",
-                "mov o\\d+\\.\\w+, l\\(\\d+\\.\\d+\\)\\n",
-                "",
-                "[ShaderOverrideOutline]",
-                "hash=6ce92f3bcc9c03d0",
-                "run = CommandListOutline",
-                "allow_duplicate_hash=overrule",
-                "",
-                "[CommandListReflectionTexture]",
-                "if $CharacterIB != 0",
-                "    if $CharacterIB == 1",
-                "        ps-t0 = copy ResourceRefHeadDiffuse",
-                "    else if $CharacterIB == 2",
-                "        ps-t0 = copy ResourceRefBodyDiffuse",
-                "    else if $CharacterIB == 3",
-                "        ps-t0 = copy ResourceRefDressDiffuse",
-                "    else if $CharacterIB == 4",
-                "        ps-t0 = copy ResourceRefExtraDiffuse",
-                "    endif",
-                "drawindexed=auto",
-                "$CharacterIB = 0",
-                "endif",
-                "",
-                "[CommandListOutline]",
-                "if $CharacterIB != 0",
-                "    if $CharacterIB == 1",
-                "        ps-t1 = copy ResourceRefHeadLightMap",
-                "    else if $CharacterIB == 2",
-                "        ps-t1 = copy ResourceRefBodyLightMap",
-                "    else if $CharacterIB == 3",
-                "        ps-t1 = copy ResourceRefDressLightMap",
-                "    else if $CharacterIB == 4",
-                "        ps-t1 = copy ResourceRefExtraLightMap",
-                "    endif",
-                "drawindexed=auto",
-                "$CharacterIB = 0",
-                "endif",
-                "",
-            ]
-            ini_file.write("\n" + "\n".join(lines_to_add))
-    except FileNotFoundError:
-        print(f"INI file not found: {ini_path}")
-
 def main():
     parser = argparse.ArgumentParser(description="Add autoUnderwaterOutfit Lines to your ini file.")
     parser.add_argument("--num_outfits", type=int, help="Number of Underwater Outfits.")
@@ -647,7 +507,6 @@ def main():
     parser.add_argument("--toggle_key", type=str, help="Key for toggling auto underwater outfit on/off.")
     parser.add_argument("--delay", type=int, help="Set the delayInFrames for switching the outfit after leaving water.")
     parser.add_argument("--aks", type=str, choices=["y", "n"], help="Do you want the Underwater Outfits to only be available when you are underwater or if functionality is toggled off.")
-    parser.add_argument("--v3", type=str, choices=["y", "n"], help="Is the character from game version 3.0 or above?")
     
     args = parser.parse_args()
 
@@ -714,11 +573,6 @@ def main():
         else:
             adjust_key_swap = args.aks
 
-        if args.v3 is None:
-            is_version_3_or_above = get_user_yes_or_no_input("Is the character from game version 3.0 and above? (yes/no):\n")
-        else:
-            is_version_3_or_above = args.v3
-
         # Create backups before making any changes
         backup_paths = []
         for filename in ini_files:
@@ -734,16 +588,6 @@ def main():
             for filename in ini_files:
                 ini_path = os.path.join(script_directory, filename)
                 remove_swapvar_values(ini_path, swapvar_values)
-
-        # Adds AGMG3ShaderFix
-        line_to_add_agmg3shaderfix = "; Generated shader fix for 3.0+ GIMI importer characters. Please contact the tool developers at https://discord.gg/agmg if you have any questions."
-        if is_version_3_or_above in ["yes", "y"]:
-            add_lines_to_ini_sections(ini_files, script_directory)
-
-            for filename in ini_files:
-                ini_path = os.path.join(script_directory, filename)
-                add_lines_to_end_of_ini(ini_path)
-                add_line_to_ini(ini_path, line_to_add_agmg3shaderfix)
 
         # Signing and adding the new condition value for [KeySwap]
         line_to_add = "; .ini modified by autoUnderwaterOutfit.py - Created by a4happy20 - https://github.com/a4happy20/autoUnderwaterOutfit"
