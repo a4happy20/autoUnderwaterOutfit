@@ -12,7 +12,6 @@
   1. Added a delay after leaving the water for when the outfit will switch back. Delay is counted by frames. The default is 480. At 30fps = 16 seconds and at 60fps = 8.
   2. You can customize the delay to your needs by running "autoUnderwaterOutfit.py --delay".
   3. Switching underwater outfits now uses the same key as switching main outfits.
-  4. Can choose to apply the shaderfix for characters from game version 3.0+.
        
      
 ##### How to Use:
@@ -21,7 +20,6 @@
   3. Next you will have to choose what $swapvar values to use for the outfits.
   4. You will then be able to set a toggle key to enable/disable the functionality.
   5. Choose if you want the Underwater Outfits to only be available when you are underwater or if functionality is toggled off.
-  6. Now you can apply the shader fix if your character is from game version 3.0 or above.
   6. Finaly the script will ask if you want to revert changes. So you can go in game and test it out.
       
       
