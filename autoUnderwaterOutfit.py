@@ -305,6 +305,19 @@ def add_underwater_outfit_lines_to_ini_sections(ini_files, script_directory, key
     except FileNotFoundError:
         print(f"INI file not found: {ini_path}")
 
+def add_underwater_outfit_lines_to_ini_sections_global(ini_files, script_directory, key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames):
+    try:
+        for filename in ini_files:
+            ini_path = os.path.join(script_directory, filename)
+            lines_to_add_constants, lines_to_add_present = generate_underwater_outfit_lines_global(key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames)
+            
+            add_lines_to_ini_section(ini_path, CONSTANTS_SECTION, lines_to_add_constants)
+            # Check and create [Present] section if needed
+            ensure_present_section_exists(ini_path, PRESENT_SECTION, lines_to_add_present)
+            
+    except FileNotFoundError:
+        print(f"INI file not found: {ini_path}")
+
 def generate_underwater_outfit_lines(key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames):
 
     lines_to_add_constants = [
@@ -443,6 +456,120 @@ def generate_underwater_outfit_lines(key_toggle, num_outfits, swapvar_values, ou
     
     return lines_to_add_constants, lines_to_add_present
 
+
+def generate_underwater_outfit_lines_global(key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames):
+
+    lines_to_add_constants = [
+        ";autoUnderwaterOutfit",
+        "global persist $underwaterOutfit = 0",
+        "global persist $underwaterOutfitSelect = 0",
+        "global persist $submerged = 0",
+        "global persist $submerged_start",
+        "global persist $swapvar_set = 0",
+        "global persist $previousSwapvar = 0",
+        f"global $delayInFrames = {delay_in_frames}",
+        "global $delay = 0",
+        "",
+        "",
+        "",
+        ";Underwater Outfit On/Off",
+        "[KeyUnderwaterOutfit]",
+        "condition = $active == 1",
+        f"key = {key_toggle}",
+        "type = cycle",
+        "$underwaterOutfit = 0,1",
+        "",
+    ]
+
+    if num_outfits > 1:
+        lines_to_add_constants.extend([
+            ";Underwater Outfit Cycle",
+            "[KeyUnderwaterOutfitSelect]",
+            "condition = $active == 1 && $submerged == 1",
+        ])
+        if key_swap:
+            lines_to_add_constants.append(f"key = {key_swap}")
+
+        if key_back:
+            lines_to_add_constants.append(f"back = {key_back}")
+        
+        if key_swap_type:
+            lines_to_add_constants.append(f"type = {key_swap_type}")
+
+        lines_to_add_constants.append(f"$underwaterOutfitSelect = {outfit_select_values}\n")
+
+    lines_to_add_constants.extend([
+    ";Key for switching variants when Underwater Outfit is ON",
+    f"[{KEYSWAP_ALT_SECTION}]",
+    "condition = $active == 1 && $submerged == 0 && $underwaterOutfit == 0",
+    f"key = {key_swap}",
+    f"back = {key_back}",
+    f"type = {key_swap_type}",
+    f"{SWAPVAR_VARIABLE} = {value_swap}",
+    "",
+    ])
+
+    lines_to_add_present = [
+        ";autoUnderwaterOutfit",
+        "if $active == 1",
+        "$submerged_start = $\global\submerged\submerged_start",
+        "endif",
+        "",
+        ";autoUnderwater store outfit",
+        "if $underwaterOutfit == 0",
+        "    if $submerged_start == 1 && $submerged == 0 && $swapvar_set == 0",
+        f"        $previousSwapvar = {SWAPVAR_VARIABLE}",
+        "        $swapvar_set = 1",
+        "        $submerged = 1",
+        "",
+        "    else if $submerged_start == 1 && $submerged == 0 && $swapvar_set == 1",
+        "        $delay = 0",
+        "    endif",
+        "",
+        "    ;autoUnderwater change outfit",
+        "    if $submerged == 1",
+    ]
+
+    for i in range(num_outfits):
+        if i == 0:
+            lines_to_add_present.append(f"        if $underwaterOutfitSelect == {i}")
+        else:
+            lines_to_add_present.append(f"        elif $underwaterOutfitSelect == {i}")
+
+        lines_to_add_present.append(f"            {SWAPVAR_VARIABLE} = {swapvar_values[i]}")
+
+    lines_to_add_present.extend([
+        "        endif",
+        "    endif",
+        "",
+        "    ;autoUnderwater reset",
+        "    if $submerged_start == 0",
+        "        $submerged = 0",
+        "    endif",
+        "",
+        "    if $submerged_start == 0 && $swapvar_set == 1",
+        "        $delay = $delay+1",
+        "",
+        "    ;autoUnderwater restore outfit",
+        "        if $submerged_start == 0 && $swapvar_set == 1 && $delay >= $delayInFrames",
+        f"            {SWAPVAR_VARIABLE} = $previousSwapvar",
+        "            $swapvar_set = 0",
+        "            $delay = 0",
+        "        endif",
+        "    endif",
+        "endif",
+        "",
+        "if $delay > $delayInFrames",
+        "    $delay = 0",
+        "endif",
+        "",
+        "",
+        "",
+    ])
+    
+    return lines_to_add_constants, lines_to_add_present
+
+
 def ensure_present_section_exists(ini_path, section_name, lines_to_add_present):
     try:
         with open(ini_path, "r") as ini_file:
@@ -507,6 +634,7 @@ def main():
     parser.add_argument("--num_outfits", type=int, help="Number of Underwater Outfits.")
     parser.add_argument("--swapvar_values", nargs='+', type=int, help=f"Values of {SWAPVAR_VARIABLE} for each Underwater Outfit.")
     parser.add_argument("--toggle_key", type=str, help="Key for toggling auto underwater outfit on/off.")
+    parser.add_argument("--global_detection", type=str, choices=["y", "n"], help="Are you using RemoveUnderwaterCensorship global version? (yes/no)")
     parser.add_argument("--delay", type=int, help="Set the delayInFrames for switching the outfit after leaving water.")
     parser.add_argument("--aks", type=str, choices=["y", "n"], help="Do you want the Underwater Outfits to only be available when you are underwater or if functionality is toggled off.")
     
@@ -546,6 +674,11 @@ def main():
         else:
             key_toggle = args.toggle_key
 
+        if args.global_detection is None:
+            global_detection = get_user_key_input("Are you using RemoveUnderwaterCensorship global version? (yes/no):\n")
+        else:
+            global_detection = args.global_detection
+
         for filename in ini_files:
             ini_path = os.path.join(script_directory, filename)
             find_keyswap_values(ini_files, script_directory)
@@ -583,7 +716,10 @@ def main():
             backup_paths.append(backup_path)
 
         # Adds autoUnderwaterOutfit
-        add_underwater_outfit_lines_to_ini_sections(ini_files, script_directory, key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames)
+        if global_detection in ["yes", "y"]:
+            add_underwater_outfit_lines_to_ini_sections_global(ini_files, script_directory, key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames)
+        else:
+            add_underwater_outfit_lines_to_ini_sections(ini_files, script_directory, key_toggle, num_outfits, swapvar_values, outfit_select_values, key_swap, key_back, key_swap_type, value_swap, delay_in_frames)
 
         # Removing $swapvar variables if only available underwater
         if adjust_key_swap in ["yes", "y"]:
