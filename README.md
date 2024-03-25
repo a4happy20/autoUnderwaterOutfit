@@ -13,7 +13,15 @@
   2. You can customize the delay to your needs by running "autoUnderwaterOutfit.py --delay".
   3. Switching underwater outfits now uses the same key as switching main outfits.
   4. Adds support for global version of RemoveUnderwaterCensorship.
-       
+
+
+#### Update: 03/2024
+  1. Added a delay when entering the water for when the outfit will switch. Delay is counted in seconds. The default is 0.00.
+  2. If you want to set the delay you must use "autoUnderwaterOutfit.py --delay_start".
+  3. For the delay when leaving the water use "autoUnderwaterOutfit.py --delay_end" (default is 9.75).
+  5. Changed delay to count in seconds instead of frames. Should be more consistant no matter your fps.
+
+
      
 ##### How to Use:
   1. Place in the directory of the INI you want to adjust.
